@@ -1,12 +1,12 @@
 package load
 
 import (
-	"awesomeProject/request"
 	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"pic2leetcode/request"
 	"regexp"
 )
 
@@ -28,30 +28,26 @@ func ParseFile(filePath string) {
 	}
 
 	// 使用正则表达式查找需要更改的地方
-	re := regexp.MustCompile(`!\[.{0,10}\]\((.{0,100})\)`)
+	re := regexp.MustCompile(`!\[.{0,10}\]\(([^\s!]{0,100})\)`)
 	for i, line := range lines {
 		if re.MatchString(line) {
 
-			fmt.Println(line, cnt)
-			// 获取图片url
-			imgUrl := re.ReplaceAllString(line, "$1")
+			// 找到Url
+			allStrings := re.FindStringSubmatch(line)
+			fmt.Println(allStrings[1])
 
-			//去掉奇怪的前缀
-			for imgUrl[0] != 'h' {
-				imgUrl = imgUrl[1:]
-			}
-			fmt.Println(imgUrl)
-
+			// 获取 leetcode 源的 url
 			var cdnUrl string
-			cdnUrl, err = request.UpImageAndGetUrl(imgUrl)
+			cdnUrl, err = request.UpImageAndGetUrl(allStrings[1])
 			if err != nil {
 				return
 			}
 
-			// 找到需要更改的地方，进行更改
+			// 进行更改
 			newLine := re.ReplaceAllString(line, "![image]("+cdnUrl+")")
 			lines[i] = newLine
-			fmt.Println(newLine)
+			fmt.Println("newLine:", newLine)
+
 		}
 	}
 

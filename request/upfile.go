@@ -1,10 +1,10 @@
 package request
 
 import (
-	"awesomeProject/model"
 	"bytes"
 	"log"
 	"net/http"
+	"pic2leetcode/model"
 )
 
 func UpImage(signature model.SignatureResponse, imageBytes []byte) error {

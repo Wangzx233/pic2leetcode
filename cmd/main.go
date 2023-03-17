@@ -1,8 +1,8 @@
 package main
 
 import (
-	"awesomeProject/load"
-	"awesomeProject/request"
+	"pic2leetcode/load"
+	"pic2leetcode/request"
 )
 
 func main() {

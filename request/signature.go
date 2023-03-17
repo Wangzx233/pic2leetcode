@@ -1,13 +1,13 @@
 package request
 
 import (
-	"awesomeProject/model"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"pic2leetcode/model"
 	"strings"
 )
 

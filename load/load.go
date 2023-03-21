@@ -28,26 +28,28 @@ func ParseFile(filePath string) {
 	}
 
 	// 使用正则表达式查找需要更改的地方
-	re := regexp.MustCompile(`!\[.{0,10}\]\(([^\s!]{0,100})\)`)
+	//re := regexp.MustCompile(`!\[.{0,10}\]\(([^\s!]{0,100})\)`)
+	re := regexp.MustCompile(`(!\[.*?\]\()(.*?)\)`)
 	for i, line := range lines {
 		if re.MatchString(line) {
 
 			// 找到Url
 			allStrings := re.FindStringSubmatch(line)
-			fmt.Println(allStrings[1])
 
+			fmt.Println(allStrings[2])
 			// 获取 leetcode 源的 url
 			var cdnUrl string
-			cdnUrl, err = request.UpImageAndGetUrl(allStrings[1])
+			cdnUrl, err = request.UpImageAndGetUrl(allStrings[2])
 			if err != nil {
 				return
 			}
 
-			// 进行更改
-			newLine := re.ReplaceAllString(line, "![image]("+cdnUrl+")")
+			//// 进行更改
+			newLine := re.ReplaceAllString(line, allStrings[1]+cdnUrl+")")
 			lines[i] = newLine
-			fmt.Println("newLine:", newLine)
-
+			fmt.Println(allStrings[1]+allStrings[2]+")", "  ————》  ", allStrings[1]+cdnUrl+")")
+			fmt.Println("__________________________________________________________________")
+			//fmt.Println("newLine : ", newLine)
 		}
 	}
 
@@ -72,13 +74,50 @@ func GetResource(path string) ([]string, error) {
 	}
 
 	for _, f := range files {
+		fullPath := path + "/" + f.Name()
 		if f.IsDir() {
-			GetResource(path + "/" + f.Name())
+			// 递归查找
+			GetResource(fullPath)
 		} else {
-			// todo :读取文件并解决
-			ParseFile(path + "/" + f.Name())
+			// 更改图片 url
+			ParseFile(fullPath)
+
+			// 将内嵌 html 用 `|||1,` 和 `|||2,` 包围起来
+			//IncludeHTMl(fullPath)
 		}
 
 	}
 	return nil, nil
+}
+
+var ReplaceMap = make(map[string]string)
+
+func IncludeHTMl(filePath string) {
+	// 读取Markdown文件内容
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+
+	for key, value := range ReplaceMap {
+		// 正则表达式匹配html排版
+		re := regexp.MustCompile(key)
+		//content = []byte(re.ReplaceAllString(string(content), "|||\n1,\n$0|||\n2,\n"))
+		content = []byte(re.ReplaceAllString(string(content), value))
+	}
+
+	// 将处理后的Markdown文件内容写回到文件中
+	err = ioutil.WriteFile(filePath, content, 0644)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func InitReplaceMap() {
+	ReplaceMap["<sup>"] = "_"
+	ReplaceMap["</sup>"] = "_"
+	ReplaceMap["<table"] = "\n|||\n1,<table"
+	ReplaceMap["</table>"] = "</table>\n|||\n2,\n"
+	ReplaceMap["<pre>"] = ""
+	ReplaceMap["</pre>"] = ""
 }

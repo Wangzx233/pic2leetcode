@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 )
 
 func GetImage(imageURL string) []byte {
@@ -13,7 +14,8 @@ func GetImage(imageURL string) []byte {
 	resp, err := http.Get(imageURL)
 	if err != nil {
 		log.Println("获取图片失败：", err)
-		fmt.Println()
+		fmt.Println(runtime.Caller(1))
+
 		return nil
 	}
 	defer resp.Body.Close()

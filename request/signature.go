@@ -56,7 +56,8 @@ func GetSignature(url string, cookie string) (model.SignatureResponse, error) {
 
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
-		log.Println(err)
+		fmt.Println("body : ", data)
+		log.Println("json Unmarshal err : ", err)
 		return resp, err
 	}
 

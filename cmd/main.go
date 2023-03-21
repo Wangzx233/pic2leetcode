@@ -12,5 +12,7 @@ func main() {
 		return
 	}
 
+	load.InitReplaceMap()
+
 	load.GetResource("./resource")
 }

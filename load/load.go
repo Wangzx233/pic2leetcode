@@ -12,6 +12,7 @@ import (
 
 var cnt = 0
 
+// ParseFile 读取文件并进行操作
 func ParseFile(filePath string) {
 	// 读取指定文件
 	file, err := os.Open(filePath)
@@ -63,6 +64,7 @@ func ParseFile(filePath string) {
 
 }
 
+// GetResource 递归遍历文件，找到后调用替换图片函数
 func GetResource(path string) ([]string, error) {
 
 	files, err := ioutil.ReadDir(path)
@@ -80,8 +82,8 @@ func GetResource(path string) ([]string, error) {
 			// 更改图片 url
 			ParseFile(fullPath)
 
-			// 将内嵌 html 用 `|||1,` 和 `|||2,` 包围起来
-			IncludeHTMl(fullPath)
+			// 自定义替换
+			//ReplaceSth(fullPath)
 		}
 
 	}
@@ -90,7 +92,8 @@ func GetResource(path string) ([]string, error) {
 
 var ReplaceMap = make(map[string]string)
 
-func IncludeHTMl(filePath string) {
+// ReplaceSth 可替换一些东西
+func ReplaceSth(filePath string) {
 	// 读取Markdown文件内容
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -100,7 +103,7 @@ func IncludeHTMl(filePath string) {
 	for key, value := range ReplaceMap {
 		// 正则表达式匹配html排版
 		re := regexp.MustCompile(key)
-		//content = []byte(re.ReplaceAllString(string(content), "|||\n1,\n$0|||\n2,\n"))
+
 		content = []byte(re.ReplaceAllString(string(content), value))
 	}
 
@@ -114,6 +117,7 @@ func IncludeHTMl(filePath string) {
 func InitReplaceMap() {
 	ReplaceMap["<sup>"] = "_"
 	ReplaceMap["</sup>"] = "_"
+	// 将内嵌 html 用 `|||1,` 和 `|||2,` 包围起来
 	ReplaceMap["<table"] = "\n|||\n1,<table"
 	ReplaceMap["</table>"] = "</table>\n|||\n2,\n"
 	ReplaceMap["{-:-}"] = ""

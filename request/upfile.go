@@ -7,6 +7,7 @@ import (
 	"pic2leetcode/model"
 )
 
+// UpImage 通过拿到的签名上传图片
 func UpImage(signature model.SignatureResponse, imageBytes []byte) error {
 
 	body := bytes.NewBuffer(imageBytes)

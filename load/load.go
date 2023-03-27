@@ -28,7 +28,6 @@ func ParseFile(filePath string) {
 	}
 
 	// 使用正则表达式查找需要更改的地方
-	//re := regexp.MustCompile(`!\[.{0,10}\]\(([^\s!]{0,100})\)`)
 	re := regexp.MustCompile(`(!\[.*?\]\()(.*?)\)`)
 	for i, line := range lines {
 		if re.MatchString(line) {
@@ -49,7 +48,6 @@ func ParseFile(filePath string) {
 			lines[i] = newLine
 			fmt.Println(allStrings[1]+allStrings[2]+")", "  ————》  ", allStrings[1]+cdnUrl+")")
 			fmt.Println("__________________________________________________________________")
-			//fmt.Println("newLine : ", newLine)
 		}
 	}
 
@@ -83,7 +81,7 @@ func GetResource(path string) ([]string, error) {
 			ParseFile(fullPath)
 
 			// 将内嵌 html 用 `|||1,` 和 `|||2,` 包围起来
-			//IncludeHTMl(fullPath)
+			IncludeHTMl(fullPath)
 		}
 
 	}
@@ -118,6 +116,6 @@ func InitReplaceMap() {
 	ReplaceMap["</sup>"] = "_"
 	ReplaceMap["<table"] = "\n|||\n1,<table"
 	ReplaceMap["</table>"] = "</table>\n|||\n2,\n"
-	ReplaceMap["<pre>"] = ""
-	ReplaceMap["</pre>"] = ""
+	ReplaceMap["{-:-}"] = ""
+	ReplaceMap["{--:}"] = ""
 }

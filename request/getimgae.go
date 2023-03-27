@@ -8,6 +8,7 @@ import (
 	"runtime"
 )
 
+// GetImage 通过图片url拿到图片的字节流
 func GetImage(imageURL string) []byte {
 
 	// 获取图片

@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// GetSignature 拿取用来上传图片的签名,入参为拿取签名的url和用户的cookie
 func GetSignature(url string, cookie string) (model.SignatureResponse, error) {
 	var resp model.SignatureResponse
 

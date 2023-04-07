@@ -8,6 +8,7 @@ import (
 	"os"
 	"pic2leetcode/request"
 	"regexp"
+	"strings"
 )
 
 var cnt = 0
@@ -32,23 +33,43 @@ func ParseFile(filePath string) {
 	re := regexp.MustCompile(`(!\[.*?\]\()(.*?)\)`)
 	for i, line := range lines {
 		if re.MatchString(line) {
+			// 找到所有匹配项的索引和值
+			matches := re.FindAllStringSubmatchIndex(line, -1)
 
-			// 找到Url
-			allStrings := re.FindStringSubmatch(line)
+			// 从后往前替换匹配项，避免替换后索引变化
+			for j := len(matches) - 1; j >= 0; j-- {
+				// 找到匹配项的索引范围
+				matchStart := matches[j][0]
 
-			fmt.Println(allStrings[2])
-			// 获取 leetcode 源的 url
-			var cdnUrl string
-			cdnUrl, err = request.UpImageAndGetUrl(allStrings[2])
-			if err != nil {
-				return
+				// 找到URL
+				urlStart := matches[j][4]
+				urlEnd := matches[j][5]
+				url := line[urlStart:urlEnd]
+				fmt.Println(url)
+				if strings.Contains(url, "private.codecogs.com") && !strings.Contains(line[matchStart+len("!["):urlStart], "\\") {
+					// 构造新的字符串
+					newLine := line[0:matchStart] + line[matchStart+len("!["):urlStart-2] + line[urlEnd+1:]
+					fmt.Println(line[0:matchStart]+"!["+line[matchStart+len("!["):urlStart]+url+line[urlEnd:], "  ————》  ", line[0:matchStart]+line[matchStart+len("!["):urlStart-2]+line[urlEnd+1:])
+					fmt.Println("__________________________________________________________________")
+					// 替换行中的匹配字符串
+					line = newLine
+				} else {
+					// 获取新的 URL
+					cdnUrl, err := request.UpImageAndGetUrl(url)
+					if err != nil {
+						return
+					}
+
+					// 构造新的字符串
+					newLine := line[0:matchStart] + "![" + line[matchStart+len("!["):urlStart] + cdnUrl + line[urlEnd:]
+					fmt.Println(line[0:matchStart]+"!["+line[matchStart+len("!["):urlStart]+url+line[urlEnd:], "  ————》  ", line[0:matchStart]+"!["+line[matchStart+len("!["):urlStart]+cdnUrl+line[urlEnd:])
+					fmt.Println("__________________________________________________________________")
+					// 替换行中的匹配字符串
+					line = newLine
+				}
+
 			}
-
-			//// 进行更改
-			newLine := re.ReplaceAllString(line, allStrings[1]+cdnUrl+")")
-			lines[i] = newLine
-			fmt.Println(allStrings[1]+allStrings[2]+")", "  ————》  ", allStrings[1]+cdnUrl+")")
-			fmt.Println("__________________________________________________________________")
+			lines[i] = line
 		}
 	}
 
@@ -83,7 +104,7 @@ func GetResource(path string) ([]string, error) {
 			ParseFile(fullPath)
 
 			// 自定义替换
-			//ReplaceSth(fullPath)
+			ReplaceSth(fullPath)
 		}
 
 	}
@@ -115,11 +136,11 @@ func ReplaceSth(filePath string) {
 }
 
 func InitReplaceMap() {
-	ReplaceMap["<sup>"] = "_"
-	ReplaceMap["</sup>"] = "_"
+	//ReplaceMap["<sup>"] = "_"
+	//ReplaceMap["</sup>"] = "_"
 	// 将内嵌 html 用 `|||1,` 和 `|||2,` 包围起来
 	ReplaceMap["<table"] = "\n|||\n1,<table"
 	ReplaceMap["</table>"] = "</table>\n|||\n2,\n"
-	ReplaceMap["{-:-}"] = ""
-	ReplaceMap["{--:}"] = ""
+	//ReplaceMap["{-:-}"] = ""
+	//ReplaceMap["{--:}"] = ""
 }
